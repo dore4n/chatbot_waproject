@@ -1,0 +1,20 @@
+services:
+  chatbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    restart: always
+    networks:
+      - chatbot_network
+    mem_limit: 512m
+    cpus: 1
+
+networks:
+  chatbot_network:
+    driver: bridge
