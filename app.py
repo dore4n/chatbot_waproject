@@ -5,7 +5,7 @@ from streamlit_chat import message
 def main():
     st.set_page_config(page_title='Chat Interativo', page_icon=':speech_balloon:')
 
-    st.title("Agente Interativo com LangChain")
+    st.title("Chatbot WaProject")
 
 
     if "messages" not in st.session_state:
@@ -16,7 +16,7 @@ def main():
 
 
     if user_input:
-        with st.spinner("Processando..."):
+        with st.spinner("Digitando..."):
 
             st.session_state.messages.append({"sender": "user", "content": user_input})
 

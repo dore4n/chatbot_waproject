@@ -2,22 +2,19 @@ import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langgraph.prebuilt import create_react_agent
-from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_core.messages import HumanMessage, AIMessage
 from agent_chatbot.chroma_config import load_or_create_chroma, add_message_to_chroma
+import logging
 
+logging.basicConfig(level=logging.INFO)
 
 load_dotenv()
 api_key = os.getenv("GROQ_API_KEY")
+message_history = []
+user_preferences = {}
 
 
 vectorstore = load_or_create_chroma(persist_directory="./chroma")
-
-search_tool = DuckDuckGoSearchRun(backend='auto')
-
-
-message_history = []
-user_preferences = {}
 
 
 llm_generic = ChatGroq(
@@ -28,33 +25,65 @@ llm_generic = ChatGroq(
     max_retries=2
 )
 
+def load_history_from_chroma(vectorstore):
+    """
+    Carrega o histórico de mensagens do ChromaDB.
+    Retorna o histórico completo, se solicitado.
+    """
+    try:
+        results = vectorstore._collection.get()
+        history = []
+
+        if "documents" in results: 
+            for result in results["documents"]:
+                if isinstance(result, dict) and "text" in result:
+                    history.append(result["text"])
+                else:
+                    history.append(str(result))
+        else:
+            logging.warning("A chave 'documents' não foi encontrada em 'results'.")
+
+        logging.info(f"Histórico de mensagens carregado: {len(history)} mensagens")
+        return history 
+    except Exception as e:
+        logging.error(f"Erro ao carregar histórico de mensagens: {e}")
+        return []
+
+def manage_message_history(input_message: str) -> None:
+    """
+    Gerencia o histórico de mensagens, adicionando a mensagem do usuário
+    ao histórico e garantindo que o limite de 10 mensagens não seja ultrapassado.
+    """
+    global message_history
+
+    message_history.append(HumanMessage(content=input_message))
+
+
+    if len(message_history) > 10:
+        message_history = message_history[-10:]
+
+    logging.info(f"Histórico de mensagens atualizado: {len(message_history)} mensagens")
 
 research_agent = create_react_agent(
     llm_generic,
-    tools=[search_tool],
+    tools=[],  
     state_modifier="""
-        Você é especializado em realizar pesquisas detalhadas sobre um tema.
-        Sempre procure fornecer respostas completas e detalhadas.
+        Você é especializado em fornecer respostas com base no histórico de mensagens.
     """
 )
 
-def search_in_chroma(query: str, vectorstore, top_k=3) -> list:
-    """
-    Busca no Chroma as mensagens mais relevantes com base na consulta do usuário.
-    Retorna uma lista de resultados.
-    """
-    results = vectorstore.similarity_search(query, k=top_k)
-    return [result['text'] for result in results]
-
 def execute_agent(input_message: str) -> str:
-    """
-    Executa o grafo do LangGraph com a mensagem fornecida, armazena o histórico
-    e adapta-se com base nas interações do usuário.
-    """
     global message_history, user_preferences
 
+    vectorstore = load_or_create_chroma(persist_directory="./chroma")
+    loaded_history = load_history_from_chroma(vectorstore)
 
-    message_history.append(HumanMessage(content=input_message))
+
+    for past_message in loaded_history:
+        message_history.append(AIMessage(content=past_message))
+
+
+    manage_message_history(input_message)
 
 
     if "tom mais formal" in input_message.lower():
@@ -67,37 +96,22 @@ def execute_agent(input_message: str) -> str:
         return "Entendido! A partir de agora, usarei um tom mais informal."
 
 
-    chroma_results = search_in_chroma(input_message, vectorstore)
-    if chroma_results:
-
-        response = "Encontrei as seguintes informações relevantes no meu histórico:\n"
-        response += "\n".join(f"- {result}" for result in chroma_results)
-        message_history.append(AIMessage(content=response))
-        return response
+    response = research_agent.invoke({"messages": message_history})
 
 
-    search_result = None
-    if "como" in input_message.lower():
-        search_result = search_tool.run(input_message)
-        message_history.append(AIMessage(content=search_result))  
-        
-
-        add_message_to_chroma(search_result, vectorstore)
-
-
-    state = {"messages": message_history}
-    final_state = research_agent.invoke(state)
-
-
-    if "messages" in final_state and len(final_state["messages"]) > 1:
-        response = final_state["messages"][-1].content
+    if "messages" in response and len(response["messages"]) > 0:
+        response_content = response["messages"][-1].content
     else:
-        response = "Não consegui processar sua solicitação. Pode fornecer mais informações?"
+        response_content = "Não consegui processar sua solicitação. Pode fornecer mais informações?"
 
 
-    message_history.append(AIMessage(content=response))
+    if response_content == message_history[-1].content:
+        response_content = "Parece que você está perguntando sobre algo que já discutimos. Vamos tentar algo novo!"
+
+
+    message_history.append(AIMessage(content=response_content))
 
     add_message_to_chroma(input_message, vectorstore)
-    add_message_to_chroma(response, vectorstore)
 
-    return response
+    logging.info(f"Histórico de mensagens atualizado: {len(message_history)} mensagens")
+    return response_content
