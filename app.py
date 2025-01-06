@@ -1,5 +1,5 @@
 import streamlit as st
-from agent_chatbot.main import execute_agent
+from agent_chatbot.agent import execute_agent
 from streamlit_chat import message
 
 def main():

@@ -1,1 +1,6 @@
 .env
+__pycache__/
+agent_chatbot/__pycache__/
+chroma_storage/
+chroma/
+chroma_data/

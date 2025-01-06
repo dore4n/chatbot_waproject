@@ -6,3 +6,6 @@ langchain-community
 langchain-experimental
 streamlit
 streamlit_chat
+langchain_chroma
+langchain_community
+langchain_huggingface
