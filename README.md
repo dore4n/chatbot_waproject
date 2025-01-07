@@ -3,7 +3,7 @@
 # **Documentação do Projeto Chatbot Waproject**
 
 ## **Resumo**
-O projeto **Chatbot Waproject** utiliza tecnologias como LangChain, LangGraph, ChromaDB e Streamlit para criar um chatbot interativo e personalizável. O agente é capaz de realizar buscas na web, armazenar e recuperar informações de um banco vetorial, além de oferecer uma interface visual amigável.
+O projeto **Chatbot Waproject** é um chatbot interativo e educacional, utilizando tecnologias como LangChain, LangGraph, ChromaDB, e Streamlit. O agente é especializado em responder perguntas sobre o livro "O Pequeno Príncipe", utilizando um mecanismo de Recuperação de Dados por Busca (RAG). Ele pode realizar buscas no banco de dados ChromaDB, analisar o contexto e fornecer respostas relevantes com base nas mensagens anteriores.
 
 ---
 
@@ -101,7 +101,6 @@ Certifique-se de ter as seguintes ferramentas instaladas antes de configurar o p
 - **ChromaDB**: Banco de dados vetorial para armazenamento e recuperação.
 - **Streamlit**: Interface gráfica interativa.
 - **Hugging Face**: Para embeddings vetoriais.
-- **DuckDuckGoSearchRun**: Pesquisa na web.
 
 Veja a lista completa de dependências em `requirements.txt`.
 
@@ -114,16 +113,26 @@ Veja a lista completa de dependências em `requirements.txt`.
    ```
    http://localhost:8501
    ```
-2. Interaja com o chatbot enviando mensagens na interface.
+2. Interaja com o chatbot enviando mensagens sobre "O Pequeno Príncipe". O agente responderá com base no contexto do livro e nas interações anteriores.
 
-### **Manipulação do Banco de Dados (ChromaDB)**
-Use as funções no `chroma_config.py` para adicionar e recuperar informações do ChromaDB. Exemplo:
-```python
-from agent_chatbot.chroma_config import load_or_create_chroma, add_message_to_chroma
+### **Adicionar Novos Dados ao Chroma (Caso Necessário)**
+Se você precisar adicionar novos chunks ao banco de dados Chroma (por exemplo, para atualizar o conteúdo com mais informações ou incluir novos tópicos), será necessário rodar o script chroma_config.py para gerar novamente o banco de dados com os novos dados.
 
-vectorstore = load_or_create_chroma()
-add_message_to_chroma("Mensagem exemplo", vectorstore)
+ 1. Rodar o chroma_config.py para adicionar novos chunks:
+
+  Caso deseje atualizar o Chroma com novos dados, execute o script chroma_config.py, que irá processar os novos chunks e atualizar o banco de dados:
+
+```bash
+python agent_chatbot/chroma_config.py
 ```
+ 2. Rodar o Streamlit novamente:
+
+Após rodar o chroma_config.py e atualizar o banco de dados Chroma, execute novamente o Streamlit:
+
+```bash
+streamlit run app.py
+```
+O chatbot agora estará usando o banco de dados atualizado, pronto para interagir com os novos dados.
 
 ---
 
@@ -158,3 +167,5 @@ streamlit run app.py
 Este projeto está sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
 
 ---
+
+Agora a documentação está focada no chatbot interativo que fala sobre "O Pequeno Príncipe" e utiliza RAG para fornecer respostas baseadas no conteúdo do livro e nas interações do usuário. Se precisar de mais ajustes, posso ajudar!

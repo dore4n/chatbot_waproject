@@ -9,3 +9,4 @@ streamlit_chat
 langchain_chroma
 langchain_community
 langchain_huggingface
+python-magic
