@@ -5,6 +5,9 @@
 ## **Resumo**
 O projeto **Chatbot Waproject** é um chatbot interativo e educacional, utilizando tecnologias como LangChain, LangGraph, ChromaDB, e Streamlit. O agente é especializado em responder perguntas sobre o livro "O Pequeno Príncipe", utilizando um mecanismo de Recuperação de Dados por Busca (RAG). Ele pode realizar buscas no banco de dados ChromaDB, analisar o contexto e fornecer respostas relevantes com base nas mensagens anteriores.
 
+<img src="/public/readme/home-conversas-pequeno.png">
+<img src="/public/readme/home-conversas-pequeno-iniciada.png">
+
 ---
 
 ## **Índice**
