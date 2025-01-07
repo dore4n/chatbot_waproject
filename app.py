@@ -3,15 +3,23 @@ from agent_chatbot.agent import process_query
 from streamlit_chat import message
 
 def main():
-    st.set_page_config(page_title="Chat Interativo", page_icon=":speech_balloon:")
+    st.set_page_config(page_title="Conversas sobre o pequeno príncipe", page_icon=":rose:")
 
-    st.title("Chatbot WaProject")
+    st.title("Conversas sobre o Pequeno Príncipe")
+    
+    st.markdown("""
+    **Bem-vindo ao mundo do Pequeno Príncipe!**
+
+    "Aqui, você pode conversar sobre o Pequeno Príncipe, suas aventuras pelo universo, suas reflexões filosóficas e seus encontros com personagens únicos.
+    Pergunte sobre sua amizade com a rosa, suas lições de vida, ou o que ele aprendeu com o aviador no deserto.
+    Sinta-se à vontade para conversar sobre outros tópicos, mas a minha expertise é no Pequeno Príncipe!"
+    """)
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
 
-    query_text = st.text_input("Digite sua pergunta:", placeholder="Exemplo: Me ajude a pesquisar sobre tecnologias de IA.")
+    query_text = st.text_input("O que você gostaria de saber?", placeholder= "Exemplo: O que o Pequeno Príncipe aprendeu sobre a amizade?")
 
     if query_text:
         with st.spinner("Digitando..."):
