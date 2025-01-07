@@ -10,3 +10,4 @@ langchain_chroma
 langchain_community
 langchain_huggingface
 python-magic
+pypdf

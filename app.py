@@ -7,33 +7,32 @@ def main():
 
     st.title("Chatbot WaProject")
 
-    # Inicializa o estado da sessão para armazenar mensagens
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Campo de entrada para a pergunta do usuário
+
     query_text = st.text_input("Digite sua pergunta:", placeholder="Exemplo: Me ajude a pesquisar sobre tecnologias de IA.")
 
     if query_text:
         with st.spinner("Digitando..."):
-            # Adiciona a mensagem do usuário no histórico
+
             st.session_state.messages.append({"sender": "user", "content": query_text})
 
-            # Chama a função process_query para obter a resposta do chatbot
-            response = process_query(query_text)
+            context = "\n".join(
+                f"{msg['sender'].capitalize()}: {msg['content']}"
+                for msg in st.session_state.messages[:-1] 
+            )
 
-            # Adiciona a resposta do chatbot no histórico
+            response = process_query(query_text, context)
+
             st.session_state.messages.append({"sender": "agent", "content": response})
 
-    # Exibição do histórico de mensagens
             for i, msg in enumerate(reversed(st.session_state.messages)):
                 if msg["sender"] == "user":
                     message(msg["content"], is_user=True, key=str(i) + "_user")
                 else:
                     message(msg["content"], is_user=False, key=str(i) + "_bot")
 
-    else:
-        st.warning("Por favor, digite uma pergunta válida.")
 
 if __name__ == "__main__":
     main()

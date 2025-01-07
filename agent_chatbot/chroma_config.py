@@ -1,15 +1,15 @@
 import os
 import shutil
-from langchain_community.document_loaders import DirectoryLoader
+from pypdf import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain.docstore.document import Document
 
 import nltk
 nltk.download('averaged_perceptron_tagger')
 nltk.download('punkt')
 nltk.download('punkt_tab')
-
 
 CHROMA_PATH = "./chroma"
 DATA_PATH = "agent_chatbot/data/books"
@@ -29,8 +29,27 @@ def generate_data_store():
 
 def load_documents():
     try:
-        loader = DirectoryLoader(DATA_PATH, glob="*.md")
-        documents = loader.load()
+        pdf_files = [
+            os.path.join(DATA_PATH, file)
+            for file in os.listdir(DATA_PATH)
+            if file.endswith(".pdf")
+        ]
+
+        documents = []
+        for pdf_file in pdf_files:
+            reader = PdfReader(pdf_file)
+            full_text = ""
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    full_text += text
+
+            documents.append(Document(
+                page_content=full_text,
+                metadata={"source": pdf_file}
+            ))
+        
+        print(f"Carregados {len(documents)} documentos.")
         return documents
     except Exception as e:
         print(f"Erro ao carregar documentos: {e}")
@@ -47,9 +66,10 @@ def split_text(documents: list):
         chunks = text_splitter.split_documents(documents)
         print(f"Split {len(documents)} documents into {len(chunks)} chunks.")
 
-        document = chunks[10]
-        print(document.page_content)
-        print(document.metadata)
+        # Apenas para demonstração: mostre o conteúdo do primeiro chunk
+        if chunks:
+            print(chunks[0].page_content)
+            print(chunks[0].metadata)
 
         return chunks
     except Exception as e:
