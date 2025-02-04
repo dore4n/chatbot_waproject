@@ -170,5 +170,3 @@ streamlit run app.py
 Este projeto está sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
 
 ---
-
-Agora a documentação está focada no chatbot interativo que fala sobre "O Pequeno Príncipe" e utiliza RAG para fornecer respostas baseadas no conteúdo do livro e nas interações do usuário. Se precisar de mais ajustes, posso ajudar!
